@@ -1,0 +1,9 @@
+{
+  "name": "vuex-learn",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "vue": "^2.5.17",
+    "vuex": "^3.0.1"
+  }
+}
