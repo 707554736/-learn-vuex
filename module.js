@@ -24,16 +24,45 @@ const store = new Vuex.Store({
   }
 })
 // 模块a的状态
-store.state.a 
+store.state.a
 // 模块b的状态
 store.state.b
 
 /**
  * 模块的局部状态
- * 对于模块内部的mutation和getter， 接收的第一个参数是模块的局部状态对象
+ * 对于模块内部的mutation和getter， 接收的第一个参数是模块的 局部 状态对象
+ * 对于模块内部的action， 局部状态通过context.state暴露出来，根节点状态为context.rootState
+ * 对于模块内部的getter， 根节点状态会作为第三个参数暴露
  */
 const moduleA = {
-  state: ()=>({
-
-  })
+  state: () => ({
+    count: 0
+  }),
+  mutations: {
+    increment(state) {
+      state.count++
+    },
+  },
+  getters: {
+    doubleCount(state) {
+      return state.count * 2
+    },
+    sumWithRootCount(state, getters, rootState) {
+      return state.count + rootState.count
+    }
+  },
+  actions: {
+    // 此处参数为context对象解构
+    incrementIfOddOnRootSum({ state, commit, rootState }) {
+      if ((state.count + rootState.count) % 2 === 1) {
+        commit('increment')
+      }
+    }
+  }
 }
+
+/**
+ * 命名空间
+ * 默认情况下 模块内部的action、mutation和getter是注册在全局命名空间的 这样使得多个模块能够对于同一mutation或者action作出相应
+ * 可以通过namespaced：true的方式让模块成为带命名空间的模块 ？？？
+ */
