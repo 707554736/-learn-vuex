@@ -64,5 +64,49 @@ const moduleA = {
 /**
  * 命名空间
  * 默认情况下 模块内部的action、mutation和getter是注册在全局命名空间的 这样使得多个模块能够对于同一mutation或者action作出相应
- * 可以通过namespaced：true的方式让模块成为带命名空间的模块 ？？？
+ * 可以通过namespaced：true的方式让模块成为带命名空间的模块 模块被注册后，它的所有getter、action和mutation会根据模块注册的路径调整命名
+ * 使用模块内容时 不需要在同一模块内额外添加命名空间前缀
  */
+const store = new Vuex.Store({
+  modules: {
+    account: {
+      namespaced: true,
+      // 模块中的状态已经是嵌套的，使用namespaced不会有影响
+      state: () => ({}),
+      // getters['account/isAdmin']
+      getters: {
+        isAdmin() { }
+      },
+      // dispatch('account/login')
+      actions: {
+        login() { }
+      },
+      //  commit('account/login')
+      mutations: {
+        login() { }
+      },
+
+      // 嵌套模块
+      modules: {
+        // 继承父模块的命名空间
+        myPage: {
+          state: () => { },
+          // getters['account/profile']
+          getters: {
+            profile() { }
+          }
+        },
+
+        // 进一步嵌套命名空间
+        posts:{
+          namespaced: true,
+
+          getters:{
+            // getters['account/posts/popular']
+            popular(){}
+          }
+        }
+      }
+    }
+  }
+})
