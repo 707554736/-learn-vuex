@@ -3,6 +3,8 @@
  * 
  */
 
+const { mapActions } = require("vuex")
+
 const moduleA = {
   state: () => { },
   mutations: {},
@@ -98,15 +100,87 @@ const store = new Vuex.Store({
         },
 
         // 进一步嵌套命名空间
-        posts:{
+        posts: {
           namespaced: true,
 
-          getters:{
+          getters: {
             // getters['account/posts/popular']
-            popular(){}
+            popular() { }
           }
         }
       }
     }
   }
 })
+
+/**
+ * 在带命名空间的模块注册全局action，添加root: true,并且将这个action的定义放在函数handler中
+ */
+
+const globalAction = new Vuex.Store({
+  actions: {
+    someOtherAction({ dispatch }) {
+      dispatch('someAction')
+    }
+  },
+  modules: {
+    foo: {
+      namespaced: true,
+      actions: {
+        someAction: {
+          root: true,
+          handler(namespacedContext, payload) { }
+        }
+      }
+    }
+  }
+})
+
+/**带命名空间的绑定函数
+ * 可以将模块的空间名称字符串作为第一个参数传递，这样所有的绑定丢回将该模块作为上下文
+ */
+/**
+ * 简写的绑定方法：
+ * computed:{
+ *  mapState('some/nested/module', {
+ *    a:state=>state.a,
+ *    b:state=>state.b
+ * })
+ * },
+ * methods: {
+ *  mapActions('some/nested/module', {
+ *  'foo',
+ *  'bar'
+ * })
+ * }
+ */
+
+/**
+ * 可以使用createNamespacedHelpers 创建基于某个命名空间辅助函数，它返回一个对象，对象里有新的绑定在给命名空间值上的组件绑定辅助函数
+ */
+
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapState, mapActions } = createNamespacedHelpers('some/nested/module')
+
+export default {
+  computed:
+    mapState({
+      a: state => state.a,
+      b: state => state.b
+    }),
+  methods: mapActions([
+    'bar',
+    'foo'])
+}
+
+/**
+ * 模块动态注册
+ * store创建后，可以用store.registerModule的方法注册模块
+ */
+
+ const dynamicStore = new Vuex.Store({})
+// 注册模块‘myModule’
+ dynamicStore.registerModule('myModule', {})
+// 注册嵌套模块‘nested/myModule’
+dynamicStore.registerModule(['nested', 'myModule'], {})
